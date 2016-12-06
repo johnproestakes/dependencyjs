@@ -22,6 +22,7 @@ var DependencyJS = (function () {
         this.loaded = [];
         this.watchers = {};
         this.callback = callback;
+        this.mode = false;
     }
     DependencyJS.prototype.loadedRequired = function (self, item) {
         var result = true;
@@ -42,24 +43,24 @@ var DependencyJS = (function () {
     DependencyJS.prototype.startImport = function (item) {
         var self = this;
         var file = item.href;
-        var ext = file.split(".").pop().split("?").shift();
+        var ext = file.split("?").shift().split(".").pop();
+        var script;
         switch (ext) {
             case "css":
-                var script = document.createElement('link');
+                script = document.createElement("link");
                 script.setAttribute("type", "text/css");
                 script.setAttribute("href", file);
                 script.setAttribute("rel", "stylesheet");
                 break;
             case "js":
-                var script = document.createElement('script');
+                script = document.createElement("script");
                 script.setAttribute("type", "text/javascript");
                 script.setAttribute("src", file);
         }
         script.addEventListener("load", function () {
             self.loaded.push(item.id);
-            console.timeEnd(item.id);
+            !self.mode || console.timeEnd(item.id);
             if (self.loaded.length == self.manifest.length) {
-                console.log('%cAll Scripts Loaded', "background-color: yellow");
                 setTimeout(function () { self.didComplete(); }, 200);
             }
         });
@@ -75,7 +76,7 @@ var DependencyJS = (function () {
                 self.watchers[item.id] = setInterval(function () {
                     if (self.loadedRequired(self, item)) {
                         // start script import.
-                        console.time(item.id);
+                        !self.mode || console.time(item.id);
                         clearInterval(self.watchers[item.id]);
                         self.startImport(item);
                     }

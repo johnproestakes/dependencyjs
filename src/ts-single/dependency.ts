@@ -24,6 +24,7 @@ class DependencyJS {
   // checker: any;
   watchers: any;
   callback: () => void;
+  mode: boolean;
 
   constructor(scripts: Dependency.script[], callback = function(){}){
     this.pointer = 0;
@@ -31,7 +32,7 @@ class DependencyJS {
     this.loaded = [];
     this.watchers = {};
     this.callback = callback;
-
+    this.mode = false;
   }
   loadedRequired(self, item){
     var result = true;
@@ -53,27 +54,27 @@ class DependencyJS {
   startImport(item){
     var self = this;
     var file: string = item.href;
-    let ext : string = file.split(".").pop().split("?").shift();
+    let ext : string = file.split("?").shift().split(".").pop();
 
+    var script: Element;
     switch (ext) {
       case "css":
-      var script: Element = document.createElement('link');
+      script = document.createElement("link");
       script.setAttribute("type","text/css");
       script.setAttribute("href", file);
       script.setAttribute("rel", "stylesheet");
 
       break;
       case "js":
-      var script : Element = document.createElement('script');
+      script = document.createElement("script");
       script.setAttribute("type", "text/javascript");
       script.setAttribute("src", file);
 
     }
-    script.addEventListener("load", function () {
+    script.addEventListener("load",function () {
       self.loaded.push(item.id);
-      console.timeEnd(item.id);
+      !self.mode||console.timeEnd(item.id);
       if(self.loaded.length == self.manifest.length) {
-        console.log('%cAll Scripts Loaded', "background-color: yellow");
         setTimeout(function(){self.didComplete()},200);
       }
     });
@@ -91,7 +92,7 @@ class DependencyJS {
         self.watchers[item.id] = setInterval(function(){
           if(self.loadedRequired(self, item)){
             // start script import.
-            console.time(item.id);
+            !self.mode||console.time(item.id);
             clearInterval(self.watchers[item.id]);
             self.startImport(item);
           }

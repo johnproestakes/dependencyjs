@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <script type="text/javascript" src="../dist/js/dependency-min.js"></script>
+    <script>
+    (new DependencyJS([
+      new Dependency.script("one", {href:"js/main.js"}, []),
+      new Dependency.script("two", {href:"js/test1.js"}, ["three","four"]),
+      new Dependency.script("three", {href:"js/test2.js"}, []),
+      new Dependency.script("four", {href:"js/test3.js"}, [])
+    ])).import();
+    </script>
+  </head>
+  <body>Open the console</body>
+</html>
